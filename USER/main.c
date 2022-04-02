@@ -51,7 +51,7 @@ int main(void)
 	showCNString(68,3,"镀",FONT_16_EN);		//°
 	while(1)
 	{
-/*		
+	
 		RS485_Send_Data(tempbuf,8);// 获取温度
 		delay_ms(200);		
 		RS485_Receive_Data(rs485_rxbuf,len);
@@ -82,12 +82,8 @@ int main(void)
 
 		key_event_hadler();		//按键事件处理
 		
-*/		
-		if(KeyPress & KEY3)
-		{
-				while(KeyPress& KEY3);
-				LED1 = !LED1;
-		}
+		
+
 
 //		LED_B = !LED_B;
 //		LED0 = !LED0;

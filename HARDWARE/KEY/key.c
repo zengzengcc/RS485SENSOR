@@ -6,44 +6,72 @@
 #include "usart.h"
 
 
+volatile u8  KeyCurrent,KeyOld,KeyNoChangedTime;
+volatile u8  KeyPress;
+volatile u8  KeyDown,KeyUp,KeyLast;
+
+volatile u8 KeyCanChange;
+
 void Timer3_Init(u16 arr,u16 psc)
 {
     TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
     NVIC_InitTypeDef NVIC_InitStructure;
 
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE); //Ê±ÖÓÊ¹ÄÜ
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE); //æ—¶é’Ÿä½¿èƒ½
     
-    //¶¨Ê±Æ÷TIM3³õÊ¼»¯
-    TIM_TimeBaseStructure.TIM_Period = arr; //ÉèÖÃÔÚÏÂÒ»¸ö¸üĞÂÊÂ¼ş×°Èë»î¶¯µÄ×Ô¶¯ÖØ×°ÔØ¼Ä´æÆ÷ÖÜÆÚµÄÖµ	
-    TIM_TimeBaseStructure.TIM_Prescaler =psc; //ÉèÖÃÓÃÀ´×÷ÎªTIMxÊ±ÖÓÆµÂÊ³ıÊıµÄÔ¤·ÖÆµÖµ
-    TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; //ÉèÖÃÊ±ÖÓ·Ö¸î:TDTS = Tck_tim
-    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  //TIMÏòÉÏ¼ÆÊıÄ£Ê½
-    TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure); //¸ù¾İÖ¸¶¨µÄ²ÎÊı³õÊ¼»¯TIMxµÄÊ±¼ä»ùÊıµ¥Î»
+    //å®šæ—¶å™¨TIM3åˆå§‹åŒ–
+    TIM_TimeBaseStructure.TIM_Period = arr; //è®¾ç½®åœ¨ä¸‹ä¸€ä¸ªæ›´æ–°äº‹ä»¶è£…å…¥æ´»åŠ¨çš„è‡ªåŠ¨é‡è£…è½½å¯„å­˜å™¨å‘¨æœŸçš„å€¼	
+    TIM_TimeBaseStructure.TIM_Prescaler =psc; //è®¾ç½®ç”¨æ¥ä½œä¸ºTIMxæ—¶é’Ÿé¢‘ç‡é™¤æ•°çš„é¢„åˆ†é¢‘å€¼
+    TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; //è®¾ç½®æ—¶é’Ÿåˆ†å‰²:TDTS = Tck_tim
+    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  //TIMå‘ä¸Šè®¡æ•°æ¨¡å¼
+    TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure); //æ ¹æ®æŒ‡å®šçš„å‚æ•°åˆå§‹åŒ–TIMxçš„æ—¶é—´åŸºæ•°å•ä½
     
-    TIM_ITConfig(TIM3,TIM_IT_Update,ENABLE); //Ê¹ÄÜÖ¸¶¨µÄTIM3ÖĞ¶Ï,ÔÊĞí¸üĞÂÖĞ¶Ï
+    TIM_ITConfig(TIM3,TIM_IT_Update,ENABLE); //ä½¿èƒ½æŒ‡å®šçš„TIM3ä¸­æ–­,å…è®¸æ›´æ–°ä¸­æ–­
 
-    //ÖĞ¶ÏÓÅÏÈ¼¶NVICÉèÖÃ
-    NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;  //TIM3ÖĞ¶Ï
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;  //ÏÈÕ¼ÓÅÏÈ¼¶0¼¶
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;  //´ÓÓÅÏÈ¼¶3¼¶
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE; //IRQÍ¨µÀ±»Ê¹ÄÜ
-    NVIC_Init(&NVIC_InitStructure);  //³õÊ¼»¯NVIC¼Ä´æÆ÷
+    //ä¸­æ–­ä¼˜å…ˆçº§NVICè®¾ç½®
+    NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;  //TIM3ä¸­æ–­
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;  //å…ˆå ä¼˜å…ˆçº§0çº§
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;  //ä»ä¼˜å…ˆçº§3çº§
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE; //IRQé€šé“è¢«ä½¿èƒ½
+    NVIC_Init(&NVIC_InitStructure);  //åˆå§‹åŒ–NVICå¯„å­˜å™¨
 
-    TIM_Cmd(TIM3, ENABLE);  //Ê¹ÄÜTIMx
+    TIM_Cmd(TIM3, ENABLE);  //ä½¿èƒ½TIMx
 }
 
-//°´¼ü³õÊ¼»¯º¯Êı
-void KEY_Init(void) //IO³õÊ¼»¯
+//æŒ‰é”®åˆå§‹åŒ–å‡½æ•°
+void KEY_Init(void) //IOåˆå§‹åŒ–
 { 
  	GPIO_InitTypeDef GPIO_InitStructure;
  
- 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB,ENABLE);//Ê¹ÄÜPORTBÊ±ÖÓ
+ 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB,ENABLE);//ä½¿èƒ½PORTBæ—¶é’Ÿ
 
 	GPIO_InitStructure.GPIO_Pin  = KEY0_PIN|KEY1_PIN|KEY2_PIN|KEY3_PIN|KEY4_PIN|KEY5_PIN;//KEY0-KEY5
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; //ÉèÖÃ³ÉÉÏÀ­ÊäÈë
- 	GPIO_Init(KEY0_PORT, &GPIO_InitStructure);//³õÊ¼»¯
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; //è®¾ç½®æˆä¸Šæ‹‰è¾“å…¥
+ 	GPIO_Init(KEY0_PORT, &GPIO_InitStructure);//åˆå§‹åŒ–
 
-	
+	KeyCanChange = 1;
+}
+
+static u8 two_second_begin = 0;
+static u8 two_second_count = 0;
+u8 callback_event = 0;
+
+void key_event_callback(u8 key)
+{
+	static u16 t;
+
+	switch (key)
+	{
+		case KEY1:
+		{
+			t++;
+			if(t > 200)
+			{	    
+				showCNString(84,6,"ç©ºç©ºç©º",FONT_16_EN);
+			}
+			break;
+		}
+	}
 }
 
 u8 GetKeyValue()
@@ -65,102 +93,134 @@ u8 GetKeyValue()
 	return inputdata;
 }
 
-volatile u8  KeyCurrent,KeyOld,KeyNoChangedTime;
-volatile u8  KeyPress;
-volatile u8  KeyDown,KeyUp,KeyLast;
 
-volatile u8 KeyCanChange;
 
-void TIM3_IRQHandler(void)   //TIM3ÖĞ¶Ï
+void TIM3_IRQHandler(void)   //TIM3ä¸­æ–­
 {
     TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
 	
-	//¿ªÊ¼¼üÅÌÉ¨Ãè
-	//±£´æ°´¼ü×´Ì¬µ½µ±Ç°°´¼üÇé¿ö
-	//KeyCurrent×Ü¹²ÓĞ8¸öbit
-	//µ±Ä³¸ö¿ª¹Ø°´ÏÂÊ±£¬¶ÔÓ¦µÄbitÎª1
-	KeyCurrent=GetKeyValue(); //¶ÁÈ¡¼üÖµ
+	if(!KeyCanChange)
+		return;
 
-	if(KeyCurrent!=KeyOld)  //Èç¹ûÁ½´ÎÖµ²»µÈ£¬ËµÃ÷°´¼üÇé¿ö·¢ÉúÁË¸Ä±ä
+	//å¼€å§‹é”®ç›˜æ‰«æ
+	//ä¿å­˜æŒ‰é”®çŠ¶æ€åˆ°å½“å‰æŒ‰é”®æƒ…å†µ
+	//KeyCurrentæ€»å…±æœ‰8ä¸ªbit
+	//å½“æŸä¸ªå¼€å…³æŒ‰ä¸‹æ—¶ï¼Œå¯¹åº”çš„bitä¸º1
+	KeyCurrent=GetKeyValue(); //è¯»å–é”®å€¼
+
+	if(KeyCurrent!=KeyOld)  //å¦‚æœä¸¤æ¬¡å€¼ä¸ç­‰ï¼Œè¯´æ˜æŒ‰é”®æƒ…å†µå‘ç”Ÿäº†æ”¹å˜
 	{
-		KeyNoChangedTime=0;       //¼üÅÌ°´ÏÂÊ±¼äÎª0
-		KeyOld=KeyCurrent;        //±£´æµ±Ç°°´¼üÇé¿ö
-		return;  //·µ»Ø
+		KeyNoChangedTime=0;       //é”®ç›˜æŒ‰ä¸‹æ—¶é—´ä¸º0
+		KeyOld=KeyCurrent;        //ä¿å­˜å½“å‰æŒ‰é”®æƒ…å†µ
+		return;  //è¿”å›
 	}
 	else
 	{
-		KeyNoChangedTime++;	     //°´ÏÂÊ±¼äÀÛ¼Æ
-		if(KeyNoChangedTime>=1)	 //Èç¹û°´ÏÂÊ±¼ä×ã¹»
+		KeyNoChangedTime++;	     //æŒ‰ä¸‹æ—¶é—´ç´¯è®¡
+		if(KeyNoChangedTime>=1)	 //å¦‚æœæŒ‰ä¸‹æ—¶é—´è¶³å¤Ÿ
 		{
 			KeyNoChangedTime=1;
-			KeyPress=KeyOld;      //±£´æ°´¼ü
-			KeyDown|=(~KeyLast)&(KeyPress); //Çó³öĞÂ°´ÏÂµÄ¼ü
-			KeyUp|=KeyLast&(~KeyPress);     //Çó³öĞÂÊÍ·ÅµÄ¼ü
-			KeyLast=KeyPress;		         //±£´æµ±Ç°°´¼üÇé¿ö
+			KeyPress=KeyOld;      //ä¿å­˜æŒ‰é”®
+			KeyDown|=(~KeyLast)&(KeyPress); //æ±‚å‡ºæ–°æŒ‰ä¸‹çš„é”®
+			KeyUp|=KeyLast&(~KeyPress);     //æ±‚å‡ºæ–°é‡Šæ”¾çš„é”®
+			KeyLast=KeyPress;		         //ä¿å­˜å½“å‰æŒ‰é”®æƒ…å†µ
 		}
 	}
-	
+	key_event_hadler();			//æŒ‰é”®å¤„ç†å‡½æ•°
+	if(two_second_begin == 1)
+	{
+		two_second_count++;
+		if(two_second_count > 200)
+		{
+			two_second_begin = 0;
+			two_second_count = 0;
+			key_event_callback(callback_event);
+		}
+	}
 }
 
 
-//#define SIZE sizeof(save_data)		//Êı×é³¤¶È
-//#define FLASH_SAVE_ADDR  0X08007000		//ÉèÖÃFLASH ±£´æµØÖ·(±ØĞëÎªÅ¼Êı£¬ÇÒÆäÖµÒª´óÓÚ±¾´úÂëËùÕ¼ÓÃFLASHµÄ´óĞ¡+0X08000000)
-//static  u8 data_write_count = 0;
-//static  u8 data_read_count = 0;
-/*
+#define SIZE sizeof(save_data)		//æ•°ç»„é•¿åº¦
+#define FLASH_SAVE_ADDR  0X08007000		//è®¾ç½®FLASH ä¿å­˜åœ°å€(å¿…é¡»ä¸ºå¶æ•°ï¼Œä¸”å…¶å€¼è¦å¤§äºæœ¬ä»£ç æ‰€å ç”¨FLASHçš„å¤§å°+0X08000000)
+static  u8 data_write_count = 0;
+static  u8 data_read_count = 0;
+
 u8 sys_mode = USUAL_MODE;
 u16 datatemp[8] = {0};
 void key_event_hadler()
 {
-	switch(KEY_RETURN)
+	switch(KeyUp)
 	{
-		case KEY0_PRES:	// ±£´æ 
+		case KEY0:	// ä¿å­˜ 
 		{	
-			STMFLASH_Write(FLASH_SAVE_ADDR + SIZE*data_write_count,save_data,SIZE);
-			data_read_count = data_write_count;
-			data_write_count++;
-			if(data_write_count > 100) //×î´ó100×éÊı¾İ
+			if(sys_mode == USUAL_MODE)
 			{
-				data_write_count = 0;
+				STMFLASH_Write(FLASH_SAVE_ADDR + SIZE*data_write_count,save_data,SIZE);
+				data_read_count = data_write_count;
+				data_write_count++;
+				if(data_write_count > 100) //æœ€å¤§100ç»„æ•°æ®
+				{
+					data_write_count = 0;
+				}
+				//å±å¹•å³ä¸‹è§’æ˜¾ç¤ºâ€œå·²ä¿å­˜â€
+				showCNString(84,6,"å·²ä¿å­˜",FONT_16_EN);
+				two_second_begin = 1;
+				callback_event = KEY0;
 			}
 			break;
 		}
-		case KEY1_PRES: //¶ÁÈ¡
+		case KEY1: //è¯»å–
 		{
-			sys_mode = !sys_mode;
-			if(sys_mode == READ_MODE)
+			if(sys_mode != READ_MODE)
 			{
-				STMFLASH_Read(FLASH_SAVE_ADDR + SIZE*data_read_count,(u16*)datatemp,SIZE);
-				//Êı¾İÏÔÊ¾ÔÚÆÁÄ»
+				sys_mode = READ_MODE;
+				data_read_count = data_write_count - 1;//è¯»å–ä½ç½®ç­‰äºå½“å‰å†™å…¥ä½ç½®-1
+				STMFLASH_Read(FLASH_SAVE_ADDR + SIZE*data_read_count,save_data,SIZE);
+				//æ¸…å±å¹•ï¼Œç¬¬ä¸€ç»„æ•°æ®æ˜¾ç¤ºåœ¨å±å¹•ä¸Š
+			}else
+			{
+				sys_mode = USUAL_MODE;	//åˆ‡æ¢åˆ°éè¯»å–æ¨¡å¼
 			}
+
 			break;
 		}
-		case KEY2_PRES: //µ÷ÕûÎÂ¶ÈÉÏÏŞ
+		case KEY2: //è°ƒæ•´æ¸©åº¦ä¸Šé™  & ä¸‹ä¸€ç»„æ•°æ®
 		{
 			if(sys_mode == READ_MODE)
 			{
 				data_read_count ++;
-				STMFLASH_Read(FLASH_SAVE_ADDR + SIZE*data_read_count,(u16*)datatemp,SIZE);
-				//Êı¾İÏÔÊ¾ÔÚÆÁÄ»
+				STMFLASH_Read(FLASH_SAVE_ADDR + SIZE*data_read_count,save_data,SIZE);
+				//æ¸…å±å¹•ï¼Œæ•°æ®æ˜¾ç¤ºåœ¨å±å¹•
 			}else
 			{
-				
+				//æ˜¾ç¤ºâ€œæ¸©åº¦ä¸Šé™ï¼šXXÂ°Câ€
 			}
 			break;
 		}
-		case KEY3_PRES: //µ÷ÕûÎÂ¶ÈÏÂÏŞ
+		case KEY3: //è°ƒæ•´æ¸©åº¦ä¸‹é™
 		{
+			if(sys_mode == READ_MODE)
+			{
+				data_read_count --;
+				STMFLASH_Read(FLASH_SAVE_ADDR + SIZE*data_read_count,save_data,SIZE);
+				//æ¸…å±å¹•ï¼Œæ•°æ®æ˜¾ç¤ºåœ¨å±å¹•
+			}else
+			{
+				//æ˜¾ç¤ºâ€œæ¸©åº¦ä¸‹é™ï¼šXXÂ°Câ€
+			}
 			break;
 		}
-		case KEY4_PRES: //µ÷ÕûÊª¶ÈÉÏÏŞ
+		case KEY4: //è°ƒæ•´æ¹¿åº¦ä¸Šé™
 		{
+			//æ˜¾ç¤ºâ€œæ¹¿åº¦ä¸Šé™ï¼šXX%â€
 			break;
 		}
-		case KEY5_PRES: //µ÷ÕûÊª¶ÈÏÂÏŞ
+		case KEY5: //è°ƒæ•´æ¹¿åº¦ä¸‹é™
 		{
+			//æ˜¾ç¤ºâ€œæ¹¿åº¦ä¸‹é™ï¼šXX%â€
 			break;
 		}
 	}
 }
-*/
+
 
