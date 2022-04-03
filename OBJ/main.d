@@ -3,7 +3,7 @@
 ..\obj\main.o: ..\SYSTEM\sys\sys.h
 ..\obj\main.o: ..\USER\stm32f10x.h
 ..\obj\main.o: ..\CORE\core_cm3.h
-..\obj\main.o: I:\Program Files (x86)\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+..\obj\main.o: G:\Keil_v5\ARM\ARMCC\bin\..\include\stdint.h
 ..\obj\main.o: ..\USER\system_stm32f10x.h
 ..\obj\main.o: ..\USER\stm32f10x_conf.h
 ..\obj\main.o: ..\STM32F10x_FWLib\inc\stm32f10x_adc.h
@@ -33,11 +33,11 @@
 ..\obj\main.o: ..\SYSTEM\delay\delay.h
 ..\obj\main.o: ..\HARDWARE\KEY\key.h
 ..\obj\main.o: ..\SYSTEM\usart\usart.h
-..\obj\main.o: I:\Program Files (x86)\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+..\obj\main.o: G:\Keil_v5\ARM\ARMCC\bin\..\include\stdio.h
 ..\obj\main.o: ..\HARDWARE\RS485\rs485.h
 ..\obj\main.o: ..\HARDWARE\OLED_IIC\IIC.h
 ..\obj\main.o: ..\HARDWARE\OLED\OLED.h
 ..\obj\main.o: ..\HARDWARE\RTC\rtc.h
 ..\obj\main.o: ..\HARDWARE\STMFLASH\stmflash.h
-..\obj\main.o: I:\Program Files (x86)\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
-..\obj\main.o: I:\Program Files (x86)\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+..\obj\main.o: G:\Keil_v5\ARM\ARMCC\bin\..\include\stdlib.h
+..\obj\main.o: G:\Keil_v5\ARM\ARMCC\bin\..\include\string.h

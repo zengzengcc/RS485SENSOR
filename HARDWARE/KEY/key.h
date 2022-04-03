@@ -40,8 +40,9 @@ extern volatile u8 KeyCanChange;
 
 
 extern u16 save_data[8];
+extern u8 sys_mode;
 
-void KEY_Init(void);//IO³õÊ¼»¯	
+void KEY_Init(void);//IOåˆå§‹åŒ–	
 void Timer3_Init(u16 arr,u16 psc);
 void key_event_hadler(void);
 u8 GetKeyValue(void);

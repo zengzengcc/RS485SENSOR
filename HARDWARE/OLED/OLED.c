@@ -1,9 +1,9 @@
 /******************************************************************
- * ÎÄ¼þ£ºOLED.c
- * ¹¦ÄÜ£ºÊµÏÖOLEDÇý¶¯º¯Êý
- * ÈÕÆÚ£º2018-03-05
- * ×÷Õß£ºzx
- * °æ±¾£ºVer.1.0 | ×î³õ°æ±¾
+ * æ–‡ä»¶ï¼šOLED.c
+ * åŠŸèƒ½ï¼šå®žçŽ°OLEDé©±åŠ¨å‡½æ•°
+ * æ—¥æœŸï¼š2018-03-05
+ * ä½œè€…ï¼šzx
+ * ç‰ˆæœ¬ï¼šVer.1.0 | æœ€åˆç‰ˆæœ¬
  * 
  * Copyright (C) 2018 zx. All rights reserved.
 *******************************************************************/
@@ -14,13 +14,13 @@
 #include "delay.h"
 #include "IIC.h"
 #include "BMP.h"
-/**********************************¾²Ì¬¹¦ÄÜº¯Êý**************************************/
+/**********************************é™æ€åŠŸèƒ½å‡½æ•°**************************************/
 /**
- * ¹¦ÄÜ£º¸ù¾ÝÖ¸¶¨×ø±êÖµÉúÐ§×ø±êÉèÖÃ
- * ²ÎÊý£º
- * 		x:xÖá×ø±ê
- * 		y:yÖá×ø±ê
- * ·µ»ØÖµ£ºNone
+ * åŠŸèƒ½ï¼šæ ¹æ®æŒ‡å®šåæ ‡å€¼ç”Ÿæ•ˆåæ ‡è®¾ç½®
+ * å‚æ•°ï¼š
+ * 		x:xè½´åæ ‡
+ * 		y:yè½´åæ ‡
+ * è¿”å›žå€¼ï¼šNone
  */
 static void setPos(unsigned char x, unsigned char y) 
 { 
@@ -30,11 +30,11 @@ static void setPos(unsigned char x, unsigned char y)
 } 
 
 /**
- * ¹¦ÄÜ£º²éÕÒÖ¸¶¨ºº×ÖÔÚ×Ö¿âÖÐµÄÎ»ÖÃ
- * ²ÎÊý£º
- *      str:´ý²éÕÒºº×Ö×Ö·û´®£¬Ò»¸öºº×ÖÒ²ÊÇ×Ö·û´®£¨Õ¼ÓÃ3×Ö½Ú£©
- * 		cnfont_index:´ý²éÕÒÖÐÎÄ×Ö¿âË÷ÒýÊý×éµØÖ·
- * ·µ»ØÖµ£ºNone
+ * åŠŸèƒ½ï¼šæŸ¥æ‰¾æŒ‡å®šæ±‰å­—åœ¨å­—åº“ä¸­çš„ä½ç½®
+ * å‚æ•°ï¼š
+ *      str:å¾…æŸ¥æ‰¾æ±‰å­—å­—ç¬¦ä¸²ï¼Œä¸€ä¸ªæ±‰å­—ä¹Ÿæ˜¯å­—ç¬¦ä¸²ï¼ˆå ç”¨3å­—èŠ‚ï¼‰
+ * 		cnfont_index:å¾…æŸ¥æ‰¾ä¸­æ–‡å­—åº“ç´¢å¼•æ•°ç»„åœ°å€
+ * è¿”å›žå€¼ï¼šNone
  */
 static u8 findCNIndex(u8* str,u8* cnfont_index)
 {
@@ -43,27 +43,27 @@ static u8 findCNIndex(u8* str,u8* cnfont_index)
 	u8 index = 0;
 	for(index=0;index<cnfont_size/3;++index)
 	{
-		if(((str[0]^cnfont_index[index*3+0])||(str[1]^cnfont_index[index*3+1])||(str[2]^cnfont_index[index*3+2]))==0)//Æ¥Åäµ½ºº×ÖË÷Òý
+		if(((str[0]^cnfont_index[index*3+0])||(str[1]^cnfont_index[index*3+1])||(str[2]^cnfont_index[index*3+2]))==0)//åŒ¹é…åˆ°æ±‰å­—ç´¢å¼•
 		{
 			return index;
 		}
 	}
 
-	return 0; //Ã»ÓÐÆ¥Åäµ½Ö±½Ó·µ»Ø×Ö¿âµÚÒ»¸öË÷Òý£¬ÕâÀïÊÇ¡°·ç¡±
+	return 0; //æ²¡æœ‰åŒ¹é…åˆ°ç›´æŽ¥è¿”å›žå­—åº“ç¬¬ä¸€ä¸ªç´¢å¼•ï¼Œè¿™é‡Œæ˜¯â€œé£Žâ€
 }
 
 /**
- * ¹¦ÄÜ£ºÐ´ÈëÃüÁî¸øOLED
- * ²ÎÊý£º
- * 		cmd:ÃüÁî
- * ·µ»ØÖµ£ºNone
+ * åŠŸèƒ½ï¼šå†™å…¥å‘½ä»¤ç»™OLED
+ * å‚æ•°ï¼š
+ * 		cmd:å‘½ä»¤
+ * è¿”å›žå€¼ï¼šNone
  */
 static void writeCommand(unsigned char cmd)
 {
 	startIIC();
-	sendIICByte(0x78); //·¢ËÍ´Ó»úµØÖ·¼°Ð´Ö¸ÁîÎ»('0')       
+	sendIICByte(0x78); //å‘é€ä»Žæœºåœ°å€åŠå†™æŒ‡ä»¤ä½('0')       
 	waitAck();	
-	sendIICByte(0x00); //Ð´Èë¿ØÖÆ×Ö½Ú
+	sendIICByte(0x00); //å†™å…¥æŽ§åˆ¶å­—èŠ‚
 	waitAck();	
 	sendIICByte(cmd); 
 	waitAck();	
@@ -71,53 +71,53 @@ static void writeCommand(unsigned char cmd)
 }
 
 /**
- * ¹¦ÄÜ£ºÐ´ÈëÊý¾Ý¸øOLED
- * ²ÎÊý£º
- * 		data:Êý¾Ý
- * ·µ»ØÖµ£ºNone
+ * åŠŸèƒ½ï¼šå†™å…¥æ•°æ®ç»™OLED
+ * å‚æ•°ï¼š
+ * 		data:æ•°æ®
+ * è¿”å›žå€¼ï¼šNone
  */
 static void writeData(unsigned char data)
 {
 	startIIC();
-	sendIICByte(0x78);	//·¢ËÍ´Ó»úµØÖ·¼°Ð´Ö¸ÁîÎ»('0')
+	sendIICByte(0x78);	//å‘é€ä»Žæœºåœ°å€åŠå†™æŒ‡ä»¤ä½('0')
 	waitAck();	
-	sendIICByte(0x40);	//Ð´Èë¿ØÖÆ×Ö½Ú
+	sendIICByte(0x40);	//å†™å…¥æŽ§åˆ¶å­—èŠ‚
 	waitAck();	
 	sendIICByte(data);
 	waitAck();	
 	stopIIC();
 }
-/**********************************ÆÁÄ»ÉèÖÃº¯Êý**************************************/
+/**********************************å±å¹•è®¾ç½®å‡½æ•°**************************************/
 /**
- * ¹¦ÄÜ£ºÉèÖÃÆÁÄ»·´É«  
- * ²ÎÊý£º
- * 		set£ºÉèÖÃ²ÎÊý   SCREEN_NORMAL,SCREEN_REVERSE¿ÉÑ¡
- * ·µ»ØÖµ£ºNone
+ * åŠŸèƒ½ï¼šè®¾ç½®å±å¹•åè‰²  
+ * å‚æ•°ï¼š
+ * 		setï¼šè®¾ç½®å‚æ•°   SCREEN_NORMAL,SCREEN_REVERSEå¯é€‰
+ * è¿”å›žå€¼ï¼šNone
  */
 void setScreenReverse(SCREEN_SHOW set)
 {
-	if(set==SCREEN_REVERSE)		//ÆÁÄ»·´É«
+	if(set==SCREEN_REVERSE)		//å±å¹•åè‰²
 	{
 		writeCommand(0xA7);
-	}else 						//ÆÁÄ»³£É«
+	}else 						//å±å¹•å¸¸è‰²
 	{
 		writeCommand(0xA6);
 	}
 }
 
 /**
- * ¹¦ÄÜ£ºÉèÖÃÆÁÄ»ÏÔÊ¾·½Ïò£¬ÀàËÆÓÚÊÖ»úÆÁÄ»·­×ª  
- * ²ÎÊý£º
- * 		set£ºÉèÖÃ²ÎÊý   SCREEN_UP,SCREEN_DOWN¿ÉÑ¡
- * ·µ»ØÖµ£ºNone
+ * åŠŸèƒ½ï¼šè®¾ç½®å±å¹•æ˜¾ç¤ºæ–¹å‘ï¼Œç±»ä¼¼äºŽæ‰‹æœºå±å¹•ç¿»è½¬  
+ * å‚æ•°ï¼š
+ * 		setï¼šè®¾ç½®å‚æ•°   SCREEN_UP,SCREEN_DOWNå¯é€‰
+ * è¿”å›žå€¼ï¼šNone
  */
 void setScreenDir(SCREEN_DIR set)
 {
-	if(set==SCREEN_UP)			//ÆÁÄ»ÕýÏò
+	if(set==SCREEN_UP)			//å±å¹•æ­£å‘
 	{
 		writeCommand(0xA1);
 		writeCommand(0xC8);
-	}else 						//ÆÁÄ»µ¹Ïò
+	}else 						//å±å¹•å€’å‘
 	{
 		writeCommand(0xA0);
 		writeCommand(0xC0);
@@ -125,10 +125,10 @@ void setScreenDir(SCREEN_DIR set)
 }
 
 /**
- * ¹¦ÄÜ£ºÉèÖÃÆÁÄ»ÊÇ·ñ¿ªÆô£¬ÀàËÆÓÚÊÖ»úÏ¢ÆÁºÍ»½ÐÑ
- * ²ÎÊý£º
- * 		set£ºÉèÖÃ²ÎÊý   SCREEN_ON,SCREEN_OFF¿ÉÑ¡
- * ·µ»ØÖµ£ºNone
+ * åŠŸèƒ½ï¼šè®¾ç½®å±å¹•æ˜¯å¦å¼€å¯ï¼Œç±»ä¼¼äºŽæ‰‹æœºæ¯å±å’Œå”¤é†’
+ * å‚æ•°ï¼š
+ * 		setï¼šè®¾ç½®å‚æ•°   SCREEN_ON,SCREEN_OFFå¯é€‰
+ * è¿”å›žå€¼ï¼šNone
  */
 void setScreenSwtich(SCREEN_SWITCH set)
 {
@@ -141,38 +141,38 @@ void setScreenSwtich(SCREEN_SWITCH set)
 	}
 }
 
-/**********************************ÏÔÊ¾ÆÁÇý¶¯º¯Êý**************************************/
+/**********************************æ˜¾ç¤ºå±é©±åŠ¨å‡½æ•°**************************************/
 /**
- * ¹¦ÄÜ£º³õÊ¼»¯OLED
- * ²ÎÊý£ºNone
- * ·µ»ØÖµ£ºNone
+ * åŠŸèƒ½ï¼šåˆå§‹åŒ–OLED
+ * å‚æ•°ï¼šNone
+ * è¿”å›žå€¼ï¼šNone
  */
 void initOLED(void)
 { 	 
-	writeCommand(0x81); 	//ÉèÖÃÁÁ¶È
-	writeCommand(0xFF); 	//ÁÁ¶ÈÖµ×î´ó ¸´Î»Ä¬ÈÏ0x7F
-	writeCommand(0xA1);		//ÉèÖÃ¶ÎÓ³Éä·½Ê½¼´ÉèÖÃÊÇ·ñË®Æ½·­×ª A0±íÊ¾·­×ª Í¨³£ºÍC0Ò»ÆðÊ¹ÓÃ
-	writeCommand(0xC8);		//ÉèÖÃCOMÉ¨ÃèÄ£Ê½¼´ÉèÖÃÊÇ·ñ´¹Ö±·­×ª C0±íÊ¾·­×ª Í¨³£ºÍA0Ò»ÆðÊ¹ÓÃ	
-	writeCommand(0x8D);		//µçºÉ±ÃÊ¹ÄÜ
+	writeCommand(0x81); 	//è®¾ç½®äº®åº¦
+	writeCommand(0xFF); 	//äº®åº¦å€¼æœ€å¤§ å¤ä½é»˜è®¤0x7F
+	writeCommand(0xA1);		//è®¾ç½®æ®µæ˜ å°„æ–¹å¼å³è®¾ç½®æ˜¯å¦æ°´å¹³ç¿»è½¬ A0è¡¨ç¤ºç¿»è½¬ é€šå¸¸å’ŒC0ä¸€èµ·ä½¿ç”¨
+	writeCommand(0xC8);		//è®¾ç½®COMæ‰«ææ¨¡å¼å³è®¾ç½®æ˜¯å¦åž‚ç›´ç¿»è½¬ C0è¡¨ç¤ºç¿»è½¬ é€šå¸¸å’ŒA0ä¸€èµ·ä½¿ç”¨	
+	writeCommand(0x8D);		//ç”µè·æ³µä½¿èƒ½
 	writeCommand(0x14);
 	
-	writeCommand(0xAF);		//¿ªÆÁÄ»£¬Ä¬ÈÏÊÇ¹Ø±ÕµÄ¾ÍºÍÃ»ÉÏµçÒ»Ñù£¬ËùÒÔÒªÊÖ¶¯¿ªÆô
+	writeCommand(0xAF);		//å¼€å±å¹•ï¼Œé»˜è®¤æ˜¯å…³é—­çš„å°±å’Œæ²¡ä¸Šç”µä¸€æ ·ï¼Œæ‰€ä»¥è¦æ‰‹åŠ¨å¼€å¯
 } 
 
 /**
- * ¹¦ÄÜ£º¸ñÊ½»¯ÆÁÄ»£¬³£Ê¹ÓÃ0x00»òÕß0xFFÇåÆÁ£¬Ê¹ÓÃ²»Í¬Êý¾Ý¿ÉÒÔ²úÉú²»Í¬µÄÌõÎÆ
- * ²ÎÊý£º
- * 		format_data£º¸ñÊ½»¯ÄÚÈÝ£¬Ò»°ãÇåÆÁ»áÓÃµ½0x00»òÕß0xFF
- * ·µ»ØÖµ£ºNone
+ * åŠŸèƒ½ï¼šæ ¼å¼åŒ–å±å¹•ï¼Œå¸¸ä½¿ç”¨0x00æˆ–è€…0xFFæ¸…å±ï¼Œä½¿ç”¨ä¸åŒæ•°æ®å¯ä»¥äº§ç”Ÿä¸åŒçš„æ¡çº¹
+ * å‚æ•°ï¼š
+ * 		format_dataï¼šæ ¼å¼åŒ–å†…å®¹ï¼Œä¸€èˆ¬æ¸…å±ä¼šç”¨åˆ°0x00æˆ–è€…0xFF
+ * è¿”å›žå€¼ï¼šNone
  */
 void formatScreen(u8 format_data)  
 {  
 	u8 x,y;		    
 	for(y=0;y<8;++y)  
 	{  
-		writeCommand(0xb0+y);    //ÉèÖÃÒ³µØÖ·£¨0~7£©
-		writeCommand(0x00);      //ÉèÖÃÏÔÊ¾Î»ÖÃ¡ªÁÐµÍµØÖ·
-		writeCommand(0x10);      //ÉèÖÃÏÔÊ¾Î»ÖÃ¡ªÁÐ¸ßµØÖ·   
+		writeCommand(0xb0+y);    //è®¾ç½®é¡µåœ°å€ï¼ˆ0~7ï¼‰
+		writeCommand(0x00);      //è®¾ç½®æ˜¾ç¤ºä½ç½®â€”åˆ—ä½Žåœ°å€
+		writeCommand(0x10);      //è®¾ç½®æ˜¾ç¤ºä½ç½®â€”åˆ—é«˜åœ°å€   
 		for(x=0;x<128;++x)
 		{
 			writeData(format_data); 
@@ -181,97 +181,97 @@ void formatScreen(u8 format_data)
 }
 
 /**
- * ¹¦ÄÜ£ºÏÔÊ¾Ò»¸ö×Ö·ûµ½OLED
- * ²ÎÊý£º
- * 		x:xÖá×ø±ê 0-127
- * 		y:yÖá×ø±ê 0-7
- * 		ch:´ýÏÔÊ¾×Ö·û ASCII×Ö·û¼¯
- * 		f_size:×ÖÌå´óÐ¡ FONT_8_EN(0608) FONT_16_EN(0816)
- * ·µ»ØÖµ£ºNone
+ * åŠŸèƒ½ï¼šæ˜¾ç¤ºä¸€ä¸ªå­—ç¬¦åˆ°OLED
+ * å‚æ•°ï¼š
+ * 		x:xè½´åæ ‡ 0-127
+ * 		y:yè½´åæ ‡ 0-7
+ * 		ch:å¾…æ˜¾ç¤ºå­—ç¬¦ ASCIIå­—ç¬¦é›†
+ * 		f_size:å­—ä½“å¤§å° FONT_8_EN(0608) FONT_16_EN(0816)
+ * è¿”å›žå€¼ï¼šNone
  */
 void showChar(u8 x,u8 y,u8 ch,FONT_SIZE f_size)
 {      	
 		u8 index = ch-' ';	
 		u8 i;
 		
-		if(x > 127 || y > 7) 			//²ÎÊýÒì³£´¦Àí
+		if(x > 127 || y > 7) 			//å‚æ•°å¼‚å¸¸å¤„ç†
 		{
 			x = 0;
 			y = 0;
 		}
-		if(f_size == FONT_16_EN)		//Èç¹ûÊÇ16*8µãÕó
+		if(f_size == FONT_16_EN)		//å¦‚æžœæ˜¯16*8ç‚¹é˜µ
 		{
 			setPos(x,y);	
-			for(i=0;i<8;++i)			//ÓÉÓÚÊÇ8*16µÄµãÕó£¬Òò´ËÕ¼ÓÃÁ½Ò³£¬Òª·Ö³ÉÐ´Èë£¬´ËÊ±Ð´ÈëµÚÒ»Ò³
+			for(i=0;i<8;++i)			//ç”±äºŽæ˜¯8*16çš„ç‚¹é˜µï¼Œå› æ­¤å ç”¨ä¸¤é¡µï¼Œè¦åˆ†æˆå†™å…¥ï¼Œæ­¤æ—¶å†™å…¥ç¬¬ä¸€é¡µ
 			{
 				writeData(ANSIC0816[index][i]);
 			}
-			setPos(x,y+1);				//ÈËÎªÖ¸¶¨ÏÂÒ»Ò³µØÖ·
-			for(i=8;i<16;++i)			//ÓÉÓÚÊÇ8*16µÄµãÕó£¬Òò´ËÕ¼ÓÃÁ½Ò³£¬Òª·Ö³ÉÐ´Èë£¬´ËÊ±Ð´ÈëµÚ¶þÒ³
+			setPos(x,y+1);				//äººä¸ºæŒ‡å®šä¸‹ä¸€é¡µåœ°å€
+			for(i=8;i<16;++i)			//ç”±äºŽæ˜¯8*16çš„ç‚¹é˜µï¼Œå› æ­¤å ç”¨ä¸¤é¡µï¼Œè¦åˆ†æˆå†™å…¥ï¼Œæ­¤æ—¶å†™å…¥ç¬¬äºŒé¡µ
 			{
 				writeData(ANSIC0816[index][i]);
 			}
 			
-		}else if(f_size == FONT_8_EN)	//6*8µãÕó
+		}else if(f_size == FONT_8_EN)	//6*8ç‚¹é˜µ
 		{	
 			setPos(x,y);
-			for(i=0;i<6;i++)			//6*8µãÕó£¬Ð´ÈëÒ»Ò³¼´¿É
+			for(i=0;i<6;i++)			//6*8ç‚¹é˜µï¼Œå†™å…¥ä¸€é¡µå³å¯
 			{
 				writeData(ANSIC0608[index][i]);		
 			}	
 		}else 
 		{
-			/*ÆäËû×ÖÌå¾´ÇëÆÚ´ý:)*/
+			/*å…¶ä»–å­—ä½“æ•¬è¯·æœŸå¾…:)*/
 		}
 }
 
 /**
- * ¹¦ÄÜ£ºÏÔÊ¾×Ö·û´®µ½OLED
- * ²ÎÊý£º
- * 		x:xÖá×ø±ê 0-127
- * 		y:yÖá×ø±ê 0-7
- * 		str:´ýÏÔÊ¾×Ö·û´®
- * 		f_size:×ÖÌå´óÐ¡ FONT_8_EN(0608) FONT_16_EN(0816)
- * ·µ»ØÖµ£ºNone
+ * åŠŸèƒ½ï¼šæ˜¾ç¤ºå­—ç¬¦ä¸²åˆ°OLED
+ * å‚æ•°ï¼š
+ * 		x:xè½´åæ ‡ 0-127
+ * 		y:yè½´åæ ‡ 0-7
+ * 		str:å¾…æ˜¾ç¤ºå­—ç¬¦ä¸²
+ * 		f_size:å­—ä½“å¤§å° FONT_8_EN(0608) FONT_16_EN(0816)
+ * è¿”å›žå€¼ï¼šNone
  */  
 void showString(u8 x,u8 y,u8* str,FONT_SIZE f_size)
 {
 	while(*str)
 	{
 		showChar(x,y,*str++,f_size);	
-		x += f_size;		//Ôö¼Óºá×ø±ê£¬ÒÆµ½ÏÂÒ»¸öºº×ÖÎ»ÖÃ
+		x += f_size;		//å¢žåŠ æ¨ªåæ ‡ï¼Œç§»åˆ°ä¸‹ä¸€ä¸ªæ±‰å­—ä½ç½®
 	}
 }
 
 /**
- * ¹¦ÄÜ£ºÒÔ°Ë½øÖÆ/Ê®½øÖÆ/Ê®Áù½øÖÆÏÔÊ¾´«ÈëµÄÕûÐÎÊý¾Ý
- * ²ÎÊý£º
- * 		x:xÖá×ø±ê 0-127
- * 		y:yÖá×ø±ê 0-7
- * 		number:´ýÏÔÊ¾ÕûÊý£¬Ö§³Ö¸ºÊý
- * 		radix:Ñ¡ÔñÏÔÊ¾½øÖÆ£¬¿ÉÑ¡OCT/DEC/HEX
- *      ndigit:Õ¼ÓÃ¼¸¸ö×Ö·û
- * 		f_size:×ÖÌå´óÐ¡ FONT_8_EN(0608) FONT_16_EN(0816)
- * ·µ»ØÖµ£ºNone
- * ×¢Òâ£º
+ * åŠŸèƒ½ï¼šä»¥å…«è¿›åˆ¶/åè¿›åˆ¶/åå…­è¿›åˆ¶æ˜¾ç¤ºä¼ å…¥çš„æ•´å½¢æ•°æ®
+ * å‚æ•°ï¼š
+ * 		x:xè½´åæ ‡ 0-127
+ * 		y:yè½´åæ ‡ 0-7
+ * 		number:å¾…æ˜¾ç¤ºæ•´æ•°ï¼Œæ”¯æŒè´Ÿæ•°
+ * 		radix:é€‰æ‹©æ˜¾ç¤ºè¿›åˆ¶ï¼Œå¯é€‰OCT/DEC/HEX
+ *      ndigit:å ç”¨å‡ ä¸ªå­—ç¬¦
+ * 		f_size:å­—ä½“å¤§å° FONT_8_EN(0608) FONT_16_EN(0816)
+ * è¿”å›žå€¼ï¼šNone
+ * æ³¨æ„ï¼š
  */ 
 void showNumber(u8 x,u8 y,s32 number,RADIX radix,u8 ndigit,FONT_SIZE f_size)
 {
 	u8 i = 0;
-	u8 str[25] = {0}; 				//¶¨ÒåÊý×Ö×ª×Ö·û´®µÄ´æ´¢buffer
+	u8 str[25] = {0}; 				//å®šä¹‰æ•°å­—è½¬å­—ç¬¦ä¸²çš„å­˜å‚¨buffer
 
-	if(radix==DEC) 					//°´Ê®½øÖÆ´æ´¢
+	if(radix==DEC) 					//æŒ‰åè¿›åˆ¶å­˜å‚¨
 	{
 		sprintf(str,"%d",number);
-	}else if(radix==HEX)			//°´Ê®Áù½øÖÆ´æ´¢
+	}else if(radix==HEX)			//æŒ‰åå…­è¿›åˆ¶å­˜å‚¨
 	{
 		sprintf(str,"%X",number);
-	}else if(radix==OCT)			//°´°Ë½øÖÆ´æ´¢
+	}else if(radix==OCT)			//æŒ‰å…«è¿›åˆ¶å­˜å‚¨
 	{
 		sprintf(str,"%o",number);
 	}else 
 	{
-		sprintf(str,"%d",number);   //²ÎÊý´íÎó£¬°´Ê®½øÖÆ´¦Àí
+		sprintf(str,"%d",number);   //å‚æ•°é”™è¯¯ï¼ŒæŒ‰åè¿›åˆ¶å¤„ç†
 	}
 
 	
@@ -289,21 +289,21 @@ void showNumber(u8 x,u8 y,s32 number,RADIX radix,u8 ndigit,FONT_SIZE f_size)
 }
 
 /**
- * ¹¦ÄÜ£ºÏÔÊ¾16*16µãÕóºº×Ö
- * ²ÎÊý£º
- * 		x:xÖá×ø±ê 0-127
- * 		y:yÖá×ø±ê 0-7
- * 		str:´ýÏÔÊ¾ºº×ÖÖ§³Öµ¥¸öºº×ÖºÍ¶à¸öºº×Ö
- * 		f_size:×ÖÌå´óÐ¡ Ä¿Ç°Ö»Ìá¹©ÁË16*16µãÕóºº×Ö£¬Èç¹ûÒªÓÃÆäËû´óÐ¡µÄºº×ÖÌí¼Ó¶ÔÓ¦ÅÐ¶Ï¼´¿É
- * 			    ±¾º¯ÊýÖÐ¸Ã²ÎÊýÎÞÐ§
- * ·µ»ØÖµ£ºNone
+ * åŠŸèƒ½ï¼šæ˜¾ç¤º16*16ç‚¹é˜µæ±‰å­—
+ * å‚æ•°ï¼š
+ * 		x:xè½´åæ ‡ 0-127
+ * 		y:yè½´åæ ‡ 0-7
+ * 		str:å¾…æ˜¾ç¤ºæ±‰å­—æ”¯æŒå•ä¸ªæ±‰å­—å’Œå¤šä¸ªæ±‰å­—
+ * 		f_size:å­—ä½“å¤§å° ç›®å‰åªæä¾›äº†16*16ç‚¹é˜µæ±‰å­—ï¼Œå¦‚æžœè¦ç”¨å…¶ä»–å¤§å°çš„æ±‰å­—æ·»åŠ å¯¹åº”åˆ¤æ–­å³å¯
+ * 			    æœ¬å‡½æ•°ä¸­è¯¥å‚æ•°æ— æ•ˆ
+ * è¿”å›žå€¼ï¼šNone
  */ 
 void showCNString(u8 x,u8 y,u8* str,FONT_SIZE f_size)
 {   
 	u8 i;
 	u8 cn_index;
 	u8 count;
-	if(x > 127 || y > 7) //²ÎÊýÒì³£´¦Àí
+	if(x > 127 || y > 7) //å‚æ•°å¼‚å¸¸å¤„ç†
 	{
 		x = 0;
 		y = 0;
@@ -328,26 +328,26 @@ void showCNString(u8 x,u8 y,u8* str,FONT_SIZE f_size)
 
 
 /**
- * ¹¦ÄÜ£ºÔÚÖÆ¶¨ÇøÓòÏÔÊ¾Í¼Æ¬
- * ²ÎÊý£º
- * 		x:xÖá×ø±ê 0-127
- * 		y:yÖá×ø±ê 0-7
- * 		x_len:ÏÔÊ¾ÇøÓòºá×ø±ê³¤¶È 0-128
- *		y_len:ÏÔÊ¾ÇøÓò×Ý×ø±ê³¤¶È 0-8
- * 		image_index:Í¼Æ¬Ã¶¾ÙË÷Òý
- * ËµÃ÷£º¸Ãº¯ÊýÒ»°ãÓÃÓÚÏÔÊ¾È«ÆÁLOGO£¬ÁíÍâÁé»îÔËÓÃ¿ÉÒÔÏÔÊ¾PPTÇÐ»»ÌØÐ§
- * 		ÈçÈÃx_lenµÝÔöLOGO¾Í»á´Ó×óµ½ÓÒÖð½¥ÏÔÊ¾£¬ÆäËûÓÃ·¨ÀàËÆ
- * ·µ»ØÖµ£ºNone
+ * åŠŸèƒ½ï¼šåœ¨åˆ¶å®šåŒºåŸŸæ˜¾ç¤ºå›¾ç‰‡
+ * å‚æ•°ï¼š
+ * 		x:xè½´åæ ‡ 0-127
+ * 		y:yè½´åæ ‡ 0-7
+ * 		x_len:æ˜¾ç¤ºåŒºåŸŸæ¨ªåæ ‡é•¿åº¦ 0-128
+ *		y_len:æ˜¾ç¤ºåŒºåŸŸçºµåæ ‡é•¿åº¦ 0-8
+ * 		image_index:å›¾ç‰‡æžšä¸¾ç´¢å¼•
+ * è¯´æ˜Žï¼šè¯¥å‡½æ•°ä¸€èˆ¬ç”¨äºŽæ˜¾ç¤ºå…¨å±LOGOï¼Œå¦å¤–çµæ´»è¿ç”¨å¯ä»¥æ˜¾ç¤ºPPTåˆ‡æ¢ç‰¹æ•ˆ
+ * 		å¦‚è®©x_lené€’å¢žLOGOå°±ä¼šä»Žå·¦åˆ°å³é€æ¸æ˜¾ç¤ºï¼Œå…¶ä»–ç”¨æ³•ç±»ä¼¼
+ * è¿”å›žå€¼ï¼šNone
  */ 
 void showImage(u8 xpos, u8 ypos,u8 x_len, u8 y_len,IMAGE_INDEX  image_index)
 { 	
 	u16 i,j;
 
-	for(i=0;i<y_len;++i)					//Ò³µØÖ·¿ØÖÆ
+	for(i=0;i<y_len;++i)					//é¡µåœ°å€æŽ§åˆ¶
 	{
 		setPos(xpos,ypos++);
 		
-		for(j=i*128+xpos;j<i*128+x_len;++j) //ÁÐµØÖ·¿ØÖÆ
+		for(j=i*128+xpos;j<i*128+x_len;++j) //åˆ—åœ°å€æŽ§åˆ¶
 		{
 			switch(image_index)
 			{

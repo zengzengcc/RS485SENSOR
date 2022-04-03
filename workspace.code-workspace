@@ -8,7 +8,8 @@
 		"files.associations": {
 			"iic.h": "c",
 			"sys.h": "c",
-			"oled.h": "c"
+			"oled.h": "c",
+			"rs485.h": "c"
 		}
 	}
 }

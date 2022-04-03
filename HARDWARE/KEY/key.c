@@ -1,9 +1,12 @@
-#include "stm32f10x.h"
+﻿#include "stm32f10x.h"
 #include "key.h"
 #include "sys.h" 
 #include "delay.h"
 #include "stmflash.h"
 #include "usart.h"
+#include "OLED.h"
+#include "rtc.h"
+#include "rs485.h"
 
 
 volatile u8  KeyCurrent,KeyOld,KeyNoChangedTime;
@@ -58,17 +61,12 @@ u8 callback_event = 0;
 
 void key_event_callback(u8 key)
 {
-	static u16 t;
 
 	switch (key)
 	{
-		case KEY1:
+		case KEY0:
 		{
-			t++;
-			if(t > 200)
-			{	    
-				showCNString(84,6,"空空空",FONT_16_EN);
-			}
+			showCNString(84,6,"空空",FONT_16_EN);
 			break;
 		}
 	}
@@ -117,7 +115,7 @@ void TIM3_IRQHandler(void)   //TIM3中断
 	else
 	{
 		KeyNoChangedTime++;	     //按下时间累计
-		if(KeyNoChangedTime>=1)	 //如果按下时间足够
+		if(KeyNoChangedTime>=2)	 //如果按下时间足够
 		{
 			KeyNoChangedTime=1;
 			KeyPress=KeyOld;      //保存按键
@@ -149,10 +147,12 @@ u8 sys_mode = USUAL_MODE;
 u16 datatemp[8] = {0};
 void key_event_hadler()
 {
+
 	switch(KeyUp)
 	{
 		case KEY0:	// 保存 
 		{	
+			
 			if(sys_mode == USUAL_MODE)
 			{
 				STMFLASH_Write(FLASH_SAVE_ADDR + SIZE*data_write_count,save_data,SIZE);
@@ -163,10 +163,11 @@ void key_event_hadler()
 					data_write_count = 0;
 				}
 				//屏幕右下角显示“已保存”
-				showCNString(84,6,"已保存",FONT_16_EN);
+				showCNString(84,6,"保存",FONT_16_EN);
 				two_second_begin = 1;
 				callback_event = KEY0;
 			}
+					
 			break;
 		}
 		case KEY1: //读取
@@ -177,6 +178,10 @@ void key_event_hadler()
 				data_read_count = data_write_count - 1;//读取位置等于当前写入位置-1
 				STMFLASH_Read(FLASH_SAVE_ADDR + SIZE*data_read_count,save_data,SIZE);
 				//清屏幕，第一组数据显示在屏幕上
+				formatScreen(0X00);
+				showNumber(0,0,save_data[3],DEC,2,FONT_16_EN);		//显示时间 
+				showNumber(24,0,save_data[4],DEC,2,FONT_16_EN);
+				showNumber(48,0,save_data[5],DEC,2,FONT_16_EN);
 			}else
 			{
 				sys_mode = USUAL_MODE;	//切换到非读取模式
@@ -191,9 +196,18 @@ void key_event_hadler()
 				data_read_count ++;
 				STMFLASH_Read(FLASH_SAVE_ADDR + SIZE*data_read_count,save_data,SIZE);
 				//清屏幕，数据显示在屏幕
+				formatScreen(0X00);
+				showNumber(0,0,save_data[3],DEC,2,FONT_16_EN);		//显示时间 
+				showNumber(24,0,save_data[4],DEC,2,FONT_16_EN);
+				showNumber(48,0,save_data[5],DEC,2,FONT_16_EN);
 			}else
 			{
+				
 				//显示“温度上限：XX°C”
+				sensor.upper_temp_limit++;
+				formatScreen(0X00);
+				showCNString(0,3,"温度上限",FONT_16_CN);
+				showNumber(68,3,sensor.upper_temp_limit,DEC,2,FONT_16_EN);
 			}
 			break;
 		}
@@ -204,9 +218,17 @@ void key_event_hadler()
 				data_read_count --;
 				STMFLASH_Read(FLASH_SAVE_ADDR + SIZE*data_read_count,save_data,SIZE);
 				//清屏幕，数据显示在屏幕
+				formatScreen(0X00);
+				showNumber(0,0,save_data[3],DEC,2,FONT_16_EN);		//显示时间 
+				showNumber(24,0,save_data[4],DEC,2,FONT_16_EN);
+				showNumber(48,0,save_data[5],DEC,2,FONT_16_EN);
 			}else
 			{
 				//显示“温度下限：XX°C”
+				sensor.lower_temp_limit--;
+				formatScreen(0X00);
+				showCNString(0,3,"温度下限",FONT_16_CN);
+				showNumber(68,3,sensor.lower_temp_limit,DEC,2,FONT_16_EN);
 			}
 			break;
 		}
@@ -221,6 +243,8 @@ void key_event_hadler()
 			break;
 		}
 	}
+
+	KeyUp = 0;
 }
 
 

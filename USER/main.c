@@ -51,7 +51,7 @@ int main(void)
 	showCNString(68,3,"镀",FONT_16_EN);		//°
 	while(1)
 	{
-	
+/*	
 		RS485_Send_Data(tempbuf,8);// 获取温度
 		delay_ms(200);		
 		RS485_Receive_Data(rs485_rxbuf,len);
@@ -72,17 +72,14 @@ int main(void)
 		showNumber(40,6,atoi(humi_data)/10,DEC,2,FONT_16_EN);
 		
 		showNumber(60,6,atoi(humi_data)%10,DEC,2,FONT_16_EN);
-		
+*/		
 		save_data[0] = calendar.w_year;
 		save_data[1] = calendar.w_month;
 		save_data[2] = calendar.w_date;
 		save_data[3] = calendar.hour;
 		save_data[4] = calendar.min;
 		save_data[5] = calendar.sec;
-
-		key_event_hadler();		//按键事件处理
-		
-		
+				
 
 
 //		LED_B = !LED_B;

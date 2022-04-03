@@ -4,6 +4,7 @@
 #include <string.h>
 
 
+struct sensor_t sensor;
 
 #ifdef EN_USART2_RX   	//如果使能了接收
 
@@ -81,6 +82,11 @@ void RS485_Init(u32 bound)
  #endif
 
   RS485_TX_EN=0;			//默认为接收模式
+
+  sensor.upper_temp_limit = 35;		//温湿度上下限初始值
+  sensor.lower_temp_limit = 20;
+  sensor.upper_humi_limit = 70;
+  sensor.lower_humi_limit = 50;
  
 }
 

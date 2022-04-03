@@ -2,91 +2,137 @@
 <body>
 <pre>
 <h1>礦ision Build Log</h1>
-<h2>Tool Versions:</h2>
-IDE-Version: μVision V5.14.0.0
-Copyright (C) 2015 ARM Ltd and ARM Germany GmbH. All rights reserved.
-License Information: Z Z, Z, LIC=03CVE-56Z06-7RLX3-AWTI5-K6DJ1-W1QP8
- 
-Tool Versions:
-Toolchain:       MDK-ARM Standard  Version: 5.14.0.0
-Toolchain Path:  I:\Program Files (x86)\Keil_v5\ARM\ARMCC\Bin
-C Compiler:      Armcc.exe V5.05 update 1 (build 106)
-Assembler:       Armasm.exe V5.05 update 1 (build 106)
-Linker/Locator:  ArmLink.exe V5.05 update 1 (build 106)
-Library Manager: ArmAr.exe V5.05 update 1 (build 106)
-Hex Converter:   FromElf.exe V5.05 update 1 (build 106)
-CPU DLL:         SARMCM3.DLL V5.14.0.0
-Dialog DLL:      DCM.DLL V1.13.1.0
-Target DLL:      Segger\JL2CM3.dll V2.99.13.0
-Dialog DLL:      TCM.DLL V1.14.4.0
- 
 <h2>Project:</h2>
-D:\资料\闲鱼项目\RS485SENSOR-master\RS485SENSOR-master\USER\RS485.uvprojx
-Project File Date:  04/02/2022
+C:\Users\Zeng\Desktop\RS485SENSOR\USER\RS485.uvprojx
+Project File Date:  04/03/2022
 
 <h2>Output:</h2>
 Build target 'RS485'
-compiling main.c...
-main.c(22): warning:  #177-D: variable "rs485_rxbuf" was declared but never referenced
-        u8 rs485_rxbuf[10] = {0};
-main.c(23): warning:  #177-D: variable "temp_data" was declared but never referenced
-        char temp_data[5];
-main.c(24): warning:  #177-D: variable "humi_data" was declared but never referenced
-        char humi_data[5];
-main.c(25): warning:  #177-D: variable "len" was declared but never referenced
-        u8 *len;
-main.c(26): warning:  #177-D: variable "i" was declared but never referenced
-        u8 i;
-main.c: 5 warnings, 0 errors
-compiling stm32f10x_it.c...
-compiling system_stm32f10x.c...
-compiling led.c...
-compiling key.c...
-compiling rs485.c...
-compiling IIC.c...
-compiling OLED.c...
-..\HARDWARE\OLED\OLED.c(41): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "const char *"
-        u16 cnfont_size = strlen(cnfont_index);
-..\HARDWARE\OLED\OLED.c(265): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
-                sprintf(str,"%d",number);
-..\HARDWARE\OLED\OLED.c(268): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
-                sprintf(str,"%X",number);
-..\HARDWARE\OLED\OLED.c(271): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
-                sprintf(str,"%o",number);
-..\HARDWARE\OLED\OLED.c(274): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "char *restrict"
-                sprintf(str,"%d",number);   //参数错误，按十进制处理
-..\HARDWARE\OLED\OLED.c(278): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "const char *"
-        for(i=strlen(str);i<ndigit;++i)
-..\HARDWARE\OLED\OLED.c(312): warning:  #167-D: argument of type "u8 *" is incompatible with parameter of type "const char *"
+linking...
+Program Size: Code=16328 RO-data=7992 RW-data=120 ZI-data=2952  
+FromELF: creating hex file...
+"..\OBJ\RS485.axf" - 0 Error(s), 0 Warning(s).
+Load "..\\OBJ\\RS485.axf" 
+Set JLink Project File to "C:\Users\Zeng\Desktop\RS485SENSOR\USER\JLinkSettings.ini"
+* JLink Info: Device "STM32F103C6" selected (32 KB flash, 10 KB RAM).
+ 
+JLink info:
+------------
+DLL: V4.80g, compiled Feb 13 2014 20:50:02
+Firmware: J-Link V9 compiled May  7 2021 16:26:12
+Hardware: V9.60
+S/N : 69614239 
+Feature(s) : RDI, GDB, FlashDL, FlashBP, JFlash 
+ 
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: Found Cortex-M3 r1p1, Little endian.
+* JLink Info: FPUnit: 6 code (BP) slots and 2 literal slots
+* JLink Info: TPIU fitted.
+ROMTableAddr = 0xE00FF003
+ 
+Target info:
+------------
+Device: STM32F103C6
+VTarget = 3.293V
+State of Pins: 
+TCK: 0, TDI: 1, TDO: 0, TMS: 1, TRES: 1, TRST: 1
+Hardware-Breakpoints: 6
+Software-Breakpoints: 8192
+Watchpoints:          4
+JTAG speed: 3000 kHz
+ 
+Erase Done.
+Programming Done.
+Verify OK.
+Application running ...
+</pre>
+</body>
+</html>
+ng:  #167-D: argument of type "u8 *" is incompatible with parameter of type "const char *"
         for(count=0;count<strlen(str)/3;++count)
 ..\HARDWARE\OLED\OLED.c: 7 warnings, 0 errors
-compiling rtc.c...
-compiling stmflash.c...
-compiling delay.c...
-compiling sys.c...
-compiling usart.c...
-compiling core_cm3.c...
-assembling startup_stm32f10x_ld.s...
-compiling misc.c...
-compiling stm32f10x_fsmc.c...
-compiling stm32f10x_gpio.c...
-compiling stm32f10x_rcc.c...
-compiling stm32f10x_usart.c...
-compiling stm32f10x_flash.c...
+linking...
+Program Size: Code=16328 RO-data=7992 RW-data=120 ZI-data=2952  
+FromELF: creating hex file...
+"..\OBJ\RS485.axf" - 0 Error(s), 7 Warning(s).
+Load "..\\OBJ\\RS485.axf" 
+Set JLink Project File to "C:\Users\Zeng\Desktop\RS485SENSOR\USER\JLinkSettings.ini"
+* JLink Info: Device "STM32F103C6" selected (32 KB flash, 10 KB RAM).
+ 
+JLink info:
+------------
+DLL: V4.80g, compiled Feb 13 2014 20:50:02
+Firmware: J-Link V9 compiled May  7 2021 16:26:12
+Hardware: V9.60
+S/N : 69614239 
+Feature(s) : RDI, GDB, FlashDL, FlashBP, JFlash 
+ 
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: Found SWD-DP with ID 0x1BA01477
+* JLink Info: Found Cortex-M3 r1p1, Little endian.
+* JLink Info: FPUnit: 6 code (BP) slots and 2 literal slots
+* JLink Info: TPIU fitted.
+ROMTableAddr = 0xE00FF003
+ 
+Target info:
+------------
+Device: STM32F103C6
+VTarget = 3.291V
+State of Pins: 
+TCK: 0, TDI: 1, TDO: 0, TMS: 1, TRES: 1, TRST: 1
+Hardware-Breakpoints: 6
+Software-Breakpoints: 8192
+Watchpoints:          4
+JTAG speed: 3000 kHz
+ 
+Erase Done.
+Programming Done.
+Verify OK.
+Application running ...
+cation running ...
+fo: TPIU fitted.
+ROMTableAddr = 0xE00FF003
+ 
+Target info:
+------------
+Device: STM32F103C6
+VTarget = 3.280V
+State of Pins: 
+TCK: 0, TDI: 1, TDO: 0, TMS: 1, TRES: 1, TRST: 1
+Hardware-Breakpoints: 6
+Software-Breakpoints: 8192
+Watchpoints:          4
+JTAG speed: 3000 kHz
+ 
+***JLink Error: Can not read register 0 (R0) while CPU is running
+***JLink Error: Can not read register 1 (R1) while CPU is running
+Erase Done.
+Programming Done.
+Verify OK.
+Application running ...
+nk Info: TPIU fitted.
+ROMTableAddr = 0xE00FF003
+ 
+Target info:
+------------
+Device: STM32F103C6
+VTarget = 3.279V
+State of Pins: 
+TCK: 0, TDI: 1, TDO: 0, TMS: 1, TRES: 1, TRST: 1
+Hardware-Breakpoints: 6
+Software-Breakpoints: 8192
+Watchpoints:          4
+JTAG speed: 3000 kHz
+ 
+Erase Done.
+Programming Done.
+Verify OK.
+Application running ...
+c...
 compiling stm32f10x_bkp.c...
 compiling stm32f10x_rtc.c...
 compiling stm32f10x_pwr.c...
 compiling stm32f10x_tim.c...
-linking...
-Program Size: Code=13764 RO-data=7896 RW-data=100 ZI-data=1908  
-FromELF: creating hex file...
-"..\OBJ\RS485.axf" - 0 Error(s), 12 Warning(s).
-
-<h2>Collection of Component include folders:</h2>
-  D:\资料\闲鱼项目\RS485SENSOR-master\RS485SENSOR-master\USER\RTE
-  I:\Program Files (x86)\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.0.5\Device\Include
-
-<h2>Collection of Component Files used:</h2>
-</pre>
-</body>
-</html>
+"..\OBJ\RS485.axf" - 3 Error(s), 12 Warning(s).
+Target not created

@@ -462,13 +462,11 @@ ARM Macro Assembler    Page 8
               00000400 
               00000200 
               00000000 
-Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M3 --apcs=interw
-ork --depend=..\obj\startup_stm32f10x_ld.d -o..\obj\startup_stm32f10x_ld.o -ID:
-\资料\闲鱼项目\RS485SENSOR-master\RS485SENSOR-master\USER\RTE -I"I:\Program Fil
-es (x86)\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.0.5\Device\Include" -I"I:\Progra
-m Files (x86)\Keil_v5\ARM\CMSIS\Include" --predefine="__UVISION_VERSION SETA 51
-4" --predefine="STM32F10X_LD SETA 1" --list=.\startup_stm32f10x_ld.lst ..\CORE\
-startup_stm32f10x_ld.s
+Command Line: --debug --xref --cpu=Cortex-M3 --apcs=interwork --depend=..\obj\s
+tartup_stm32f10x_ld.d -o..\obj\startup_stm32f10x_ld.o -IG:\Keil_v5\ARM\RV31\INC
+ -IG:\Keil_v5\ARM\PACK\ARM\CMSIS\4.1.0\CMSIS\Include -IG:\Keil_v5\ARM\PACK\Keil
+\STM32F1xx_DFP\1.0.5\Device\Include --list=.\startup_stm32f10x_ld.lst ..\CORE\s
+tartup_stm32f10x_ld.s
 
 
 
@@ -1143,4 +1141,4 @@ Symbol: __use_two_region_memory
       None
 Comment: __use_two_region_memory unused
 3 symbols
-403 symbols in table
+401 symbols in table
