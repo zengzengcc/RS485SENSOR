@@ -30,6 +30,13 @@ enum
 {
     USUAL_MODE,
     READ_MODE,
+    ADJUST_MODE,
+};
+
+enum
+{
+    UP_LIMIT,
+    LOW_LIMIT,
 };
 
 extern volatile u8  KeyCurrent,KeyOld,KeyNoChangedTime;
@@ -45,5 +52,6 @@ extern u8 sys_mode;
 void KEY_Init(void);//IO初始化	
 void Timer3_Init(u16 arr,u16 psc);
 void key_event_hadler(void);
+void show_savedata(void);
 u8 GetKeyValue(void);
 #endif

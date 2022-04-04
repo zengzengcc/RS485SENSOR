@@ -136,7 +136,32 @@ void TIM3_IRQHandler(void)   //TIM3中断
 		}
 	}
 }
+void show_savedata(void)
+{
+	formatScreen(0X00);
+	showString(16,0,":",FONT_16_EN);
+	showString(40,0,":",FONT_16_EN);
+	showString(92,0,"-",FONT_16_EN);			
+	showNumber(0,0,save_data[3],DEC,2,FONT_16_EN);		//显示时间 
+	showNumber(24,0,save_data[4],DEC,2,FONT_16_EN);
+	showNumber(48,0,save_data[5],DEC,2,FONT_16_EN);
+	showNumber(76,0,save_data[1],DEC,2,FONT_16_EN);
+	showNumber(100,0,save_data[2],DEC,2,FONT_16_EN);
+	showCNString(0,3,"温度",FONT_16_CN);
+	showString(33,3,":",FONT_16_EN);
+	showCNString(0,6,"湿度",FONT_16_EN);
+	showString(33,6,":",FONT_16_EN);
+	showNumber(40,3,save_data[6]/10,DEC,2,FONT_16_EN);
+	showString(56,3,".",FONT_16_EN);
+	showNumber(60,3,save_data[6]%10,DEC,2,FONT_16_EN);
+	showCNString(68,3,"镀",FONT_16_EN);		//°
+	showString(76,3,"C",FONT_16_EN);
+	showNumber(40,6,save_data[7]/10,DEC,2,FONT_16_EN);
+	showString(56,6,".",FONT_16_EN);
+	showNumber(60,6,save_data[7]%10,DEC,2,FONT_16_EN);
+	showString(68,6,"%",FONT_16_EN);
 
+}
 
 #define SIZE sizeof(save_data)		//数组长度
 #define FLASH_SAVE_ADDR  0X08007000		//设置FLASH 保存地址(必须为偶数，且其值要大于本代码所占用FLASH的大小+0X08000000)
@@ -144,7 +169,7 @@ static  u8 data_write_count = 0;
 static  u8 data_read_count = 0;
 
 u8 sys_mode = USUAL_MODE;
-u16 datatemp[8] = {0};
+
 void key_event_hadler()
 {
 
@@ -156,13 +181,12 @@ void key_event_hadler()
 			if(sys_mode == USUAL_MODE)
 			{
 				STMFLASH_Write(FLASH_SAVE_ADDR + SIZE*data_write_count,save_data,SIZE);
-				data_read_count = data_write_count;
 				data_write_count++;
 				if(data_write_count > 100) //最大100组数据
 				{
 					data_write_count = 0;
 				}
-				//屏幕右下角显示“已保存”
+				//屏幕右下角显示“保存”
 				showCNString(84,6,"保存",FONT_16_EN);
 				two_second_begin = 1;
 				callback_event = KEY0;
@@ -170,18 +194,44 @@ void key_event_hadler()
 					
 			break;
 		}
-		case KEY1: //读取
+		case KEY1: //温度
 		{
-			if(sys_mode != READ_MODE)
+			
+			
+			break;
+		}
+		case KEY2: //+
+		{
+			if(sys_mode == READ_MODE)
 			{
-				sys_mode = READ_MODE;
-				data_read_count = data_write_count - 1;//读取位置等于当前写入位置-1
+				if(data_read_count < (data_write_count-1))
+				{
+					data_read_count ++;
+				}
+			
 				STMFLASH_Read(FLASH_SAVE_ADDR + SIZE*data_read_count,save_data,SIZE);
-				//清屏幕，第一组数据显示在屏幕上
+				//清屏幕，数据显示在屏幕
 				formatScreen(0X00);
 				showNumber(0,0,save_data[3],DEC,2,FONT_16_EN);		//显示时间 
 				showNumber(24,0,save_data[4],DEC,2,FONT_16_EN);
 				showNumber(48,0,save_data[5],DEC,2,FONT_16_EN);
+			}
+			break;
+		}
+		case KEY3: //读取
+		{
+			
+			if(sys_mode != READ_MODE)
+			{
+				sys_mode = READ_MODE;
+				if(data_write_count > 0)
+				{
+					data_read_count = data_write_count - 1;//读取位置等于当前写入位置-1	
+				}
+
+				STMFLASH_Read(FLASH_SAVE_ADDR + SIZE*data_read_count,save_data,SIZE);
+				//清屏幕，第一组数据显示在屏幕上
+				show_savedata();
 			}else
 			{
 				sys_mode = USUAL_MODE;	//切换到非读取模式
@@ -189,11 +239,19 @@ void key_event_hadler()
 
 			break;
 		}
-		case KEY2: //调整温度上限  & 下一组数据
+		case KEY4: //湿度
+		{
+			
+			break;
+		}
+		case KEY5: // -
 		{
 			if(sys_mode == READ_MODE)
 			{
-				data_read_count ++;
+				if(data_read_count > 0)
+				{
+					data_read_count --;
+				}
 				STMFLASH_Read(FLASH_SAVE_ADDR + SIZE*data_read_count,save_data,SIZE);
 				//清屏幕，数据显示在屏幕
 				formatScreen(0X00);
@@ -201,45 +259,6 @@ void key_event_hadler()
 				showNumber(24,0,save_data[4],DEC,2,FONT_16_EN);
 				showNumber(48,0,save_data[5],DEC,2,FONT_16_EN);
 			}else
-			{
-				
-				//显示“温度上限：XX°C”
-				sensor.upper_temp_limit++;
-				formatScreen(0X00);
-				showCNString(0,3,"温度上限",FONT_16_CN);
-				showNumber(68,3,sensor.upper_temp_limit,DEC,2,FONT_16_EN);
-			}
-			break;
-		}
-		case KEY3: //调整温度下限
-		{
-			if(sys_mode == READ_MODE)
-			{
-				data_read_count --;
-				STMFLASH_Read(FLASH_SAVE_ADDR + SIZE*data_read_count,save_data,SIZE);
-				//清屏幕，数据显示在屏幕
-				formatScreen(0X00);
-				showNumber(0,0,save_data[3],DEC,2,FONT_16_EN);		//显示时间 
-				showNumber(24,0,save_data[4],DEC,2,FONT_16_EN);
-				showNumber(48,0,save_data[5],DEC,2,FONT_16_EN);
-			}else
-			{
-				//显示“温度下限：XX°C”
-				sensor.lower_temp_limit--;
-				formatScreen(0X00);
-				showCNString(0,3,"温度下限",FONT_16_CN);
-				showNumber(68,3,sensor.lower_temp_limit,DEC,2,FONT_16_EN);
-			}
-			break;
-		}
-		case KEY4: //调整湿度上限
-		{
-			//显示“湿度上限：XX%”
-			break;
-		}
-		case KEY5: //调整湿度下限
-		{
-			//显示“湿度下限：XX%”
 			break;
 		}
 	}

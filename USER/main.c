@@ -35,58 +35,51 @@ int main(void)
  	initOLED();
 	Timer3_Init(99,7199); //10ms
 	formatScreen(0x00);
-   showCNString(0,3,"温度",FONT_16_CN);
-   showString(33,3,":",FONT_16_EN);
-   showCNString(0,6,"湿度",FONT_16_EN);
-   showString(33,6,":",FONT_16_EN);
  	
-	showString(16,0,":",FONT_16_EN);
-	showString(40,0,":",FONT_16_EN);
-	showString(92,0,"-",FONT_16_EN);
-	
-	showString(76,3,"C",FONT_16_EN);
-	showString(56,3,".",FONT_16_EN);
-	showString(68,6,"%",FONT_16_EN);
-	showString(56,6,".",FONT_16_EN);
-	showCNString(68,3,"镀",FONT_16_EN);		//°
+
 	while(1)
 	{
-/*	
-		RS485_Send_Data(tempbuf,8);// 获取温度
-		delay_ms(200);		
-		RS485_Receive_Data(rs485_rxbuf,len);
-		sprintf(temp_data,"%d",rs485_rxbuf[3]<<8|rs485_rxbuf[4]);
-		save_data[6] = atoi(temp_data);
+		if(sys_mode == USUAL_MODE)
+		{
+			
+			showCNString(0,3,"温度",FONT_16_CN);
+			showString(33,3,":",FONT_16_EN);
+			showCNString(0,6,"湿度",FONT_16_EN);
+			showString(33,6,":",FONT_16_EN);
+			
+			RS485_Send_Data(tempbuf,8);// 获取温度
+			delay_ms(200);		
+			RS485_Receive_Data(rs485_rxbuf,len);
+			sprintf(temp_data,"%d",rs485_rxbuf[3]<<8|rs485_rxbuf[4]);
+			save_data[6] = atoi(temp_data);
 
-		showNumber(40,3,atoi(temp_data)/10,DEC,2,FONT_16_EN);
-		showString(56,3,".",FONT_16_EN);
-		showNumber(60,3,atoi(temp_data)%10,DEC,2,FONT_16_EN);
-		
-		
-		RS485_Send_Data(humibuf,8);// 获取湿度
-		delay_ms(200);		
-		RS485_Receive_Data(rs485_rxbuf,len);
-		sprintf(humi_data,"%d",rs485_rxbuf[3]<<8|rs485_rxbuf[4]);
-		save_data[7] = atoi(humi_data);
-
-		showNumber(40,6,atoi(humi_data)/10,DEC,2,FONT_16_EN);
-		
-		showNumber(60,6,atoi(humi_data)%10,DEC,2,FONT_16_EN);
-*/		
-		save_data[0] = calendar.w_year;
-		save_data[1] = calendar.w_month;
-		save_data[2] = calendar.w_date;
-		save_data[3] = calendar.hour;
-		save_data[4] = calendar.min;
-		save_data[5] = calendar.sec;
-				
+			showNumber(40,3,atoi(temp_data)/10,DEC,2,FONT_16_EN);
+			showString(56,3,".",FONT_16_EN);
+			showNumber(60,3,atoi(temp_data)%10,DEC,2,FONT_16_EN);
+			showCNString(68,3,"镀",FONT_16_EN);		//°
+			showString(76,3,"C",FONT_16_EN);
 
 
-//		LED_B = !LED_B;
-//		LED0 = !LED0;
-//		LED1 = !LED1;
-//		LED2 = !LED2;
-//		LED3 = !LED3;
+			RS485_Send_Data(humibuf,8);// 获取湿度
+			delay_ms(200);		
+			RS485_Receive_Data(rs485_rxbuf,len);
+			sprintf(humi_data,"%d",rs485_rxbuf[3]<<8|rs485_rxbuf[4]);
+			save_data[7] = atoi(humi_data);
+
+			showNumber(40,6,atoi(humi_data)/10,DEC,2,FONT_16_EN);
+			showString(56,6,".",FONT_16_EN);
+			showNumber(60,6,atoi(humi_data)%10,DEC,2,FONT_16_EN);
+			showString(68,6,"%",FONT_16_EN);
+			
+			save_data[0] = calendar.w_year;
+			save_data[1] = calendar.w_month;
+			save_data[2] = calendar.w_date;
+			save_data[3] = calendar.hour;
+			save_data[4] = calendar.min;
+			save_data[5] = calendar.sec;
+			save_data[6] = atoi(temp_data);
+			save_data[7] = atoi(humi_data);		
+	  }
 
 	} 
 }

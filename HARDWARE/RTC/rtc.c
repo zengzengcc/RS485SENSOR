@@ -73,10 +73,15 @@ void RTC_IRQHandler(void)
 	{							
 		RTC_Get();//更新时间
 		if(sys_mode == USUAL_MODE)
-		{   
+		{ 
+			showString(16,0,":",FONT_16_EN);
+			showString(40,0,":",FONT_16_EN);
+			showString(92,0,"-",FONT_16_EN);			
 			showNumber(0,0,calendar.hour,DEC,2,FONT_16_EN);		//显示时间 
 			showNumber(24,0,calendar.min,DEC,2,FONT_16_EN);
 			showNumber(48,0,calendar.sec,DEC,2,FONT_16_EN);
+			showNumber(76,0,calendar.w_month,DEC,2,FONT_16_EN);
+			showNumber(100,0,calendar.w_date,DEC,2,FONT_16_EN);
 		}
 
  	}
