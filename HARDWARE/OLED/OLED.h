@@ -69,6 +69,7 @@ void writeCommand(unsigned char cmd);
 void writeData(unsigned char data);
 
 void formatScreen(u8 format_data);
+void formatScreenTwo(u8 line,u8 format_data);
 
 void showChar(u8 x,u8 y,u8 ch,FONT_SIZE f_size);  
 void showString(u8 x,u8 y,u8* str,FONT_SIZE f_size);

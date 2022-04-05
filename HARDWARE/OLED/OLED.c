@@ -180,6 +180,21 @@ void formatScreen(u8 format_data)
 	} 
 }
 
+void formatScreenTwo(u8 line,u8 format_data)
+{
+	u8 x,y;
+	for(y=line;y<(line+2);y++)
+	{
+		writeCommand(0xb0+y);    //设置页地址（0~7）
+		writeCommand(0x00);      //设置显示位置—列低地址
+		writeCommand(0x10);      //设置显示位置—列高地址   
+		for(x=0;x<128;++x)
+		{
+			writeData(format_data); 
+		}
+	}
+}
+
 /**
  * 功能：显示一个字符到OLED
  * 参数：

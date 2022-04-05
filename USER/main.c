@@ -50,7 +50,7 @@ int main(void)
 			showString(33,6,":",FONT_16_EN);
 			
 			RS485_Send_Data(tempbuf,8);// 获取温度
-			delay_ms(300);		
+			delay_ms(200);		
 			RS485_Receive_Data(rs485_rxbuf,len);
 			sprintf(temp_data,"%d",rs485_rxbuf[3]<<8|rs485_rxbuf[4]);
 			save_data[6] = atoi(temp_data);
@@ -63,7 +63,7 @@ int main(void)
 
 
 			RS485_Send_Data(humibuf,8);// 获取湿度
-			delay_ms(300);		
+			delay_ms(200);		
 			RS485_Receive_Data(rs485_rxbuf,len);
 			sprintf(humi_data,"%d",rs485_rxbuf[3]<<8|rs485_rxbuf[4]);
 			save_data[7] = atoi(humi_data);
@@ -80,7 +80,17 @@ int main(void)
 			save_data[4] = calendar.min;
 			save_data[5] = calendar.sec;
 			save_data[6] = atoi(temp_data);
-			save_data[7] = atoi(humi_data);		
+			save_data[7] = atoi(humi_data);
+			if(save_data[5] == 0 || save_data[5] == 30)
+			{
+				
+				STMFLASH_Write(FLASH_SAVE_ADDR + SIZE*data_write_count,save_data,SIZE);
+				data_write_count++;
+				if(data_write_count > 100) //最大100组数据
+				{
+					data_write_count = 0;
+				}
+			}		
 			last_mode = USUAL_MODE;
 	  }
 	  
@@ -104,6 +114,28 @@ int main(void)
 		 	showNumber(72,3,sensor.lower_temp_limit,DEC,2,FONT_16_EN);
 		  }
 		 last_mode = ADJUST_TEMP_MODE;
+	  }
+
+	  else if(sys_mode == ADJUST_HUMI_MODE)
+	  {		
+		  if(last_mode == USUAL_MODE)
+	  	 {			
+			formatScreen(0X00);
+		 }
+			
+		  if(sensor.adjust_humi_limit == UP_LIMIT)
+		  {
+		  	
+		  	showCNString(0,3,"湿度上限",FONT_16_CN);
+		 	showNumber(72,3,sensor.upper_humi_limit,DEC,2,FONT_16_EN);
+		  }
+		  else if(sensor.adjust_humi_limit == LOW_LIMIT)
+		  {
+			
+		  	showCNString(0,3,"湿度下限",FONT_16_CN);
+		 	showNumber(72,3,sensor.lower_humi_limit,DEC,2,FONT_16_EN);
+		  }
+		 last_mode = ADJUST_HUMI_MODE;
 	  }
 
 	} 

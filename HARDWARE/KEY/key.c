@@ -9,6 +9,10 @@
 #include "rs485.h"
 
 
+
+u8 data_write_count = 0;
+u8 data_read_count = 0;
+
 volatile u8  KeyCurrent,KeyOld,KeyNoChangedTime;
 volatile u8  KeyPress;
 volatile u8  KeyDown,KeyUp,KeyLast;
@@ -70,18 +74,22 @@ void key_event_callback(u8 key)
 	{
 		case KEY0:
 		{
-			showCNString(84,6,"空空",FONT_16_EN);
 			break;
 		}
 		case KEY1:
 		{
 			sys_mode = USUAL_MODE;
-			showCNString(0,3,"空空空空空空空空空空空",FONT_16_EN);
+			break;
+		}
+		case KEY4:
+		{
+			sys_mode = USUAL_MODE;
 			break;
 		}
 		default:
 			break;
 	}
+	callback_event = 0;
 }
 
 u8 GetKeyValue()
@@ -102,6 +110,7 @@ u8 GetKeyValue()
 	}
 	return inputdata;
 }
+
 
 
 void TIM3_IRQHandler(void)   //TIM3中断
@@ -157,6 +166,8 @@ void TIM3_IRQHandler(void)   //TIM3中断
 			key_event_callback(callback_event);
 		}
 	}
+	
+
 
 	
 }
@@ -179,7 +190,6 @@ void show_savedata(void)
 	showString(56,3,".",FONT_16_EN);
 	showNumber(60,3,save_data[6]%10,DEC,2,FONT_16_EN);
 	showCNString(68,3,"镀",FONT_16_EN);		//°
-	showString(76,3,"C",FONT_16_EN);
 	showNumber(40,6,save_data[7]/10,DEC,2,FONT_16_EN);
 	showString(56,6,".",FONT_16_EN);
 	showNumber(60,6,save_data[7]%10,DEC,2,FONT_16_EN);
@@ -187,10 +197,7 @@ void show_savedata(void)
 
 }
 
-#define SIZE sizeof(save_data)		//数组长度
-#define FLASH_SAVE_ADDR  0X08007000		//设置FLASH 保存地址(必须为偶数，且其值要大于本代码所占用FLASH的大小+0X08000000)
-static  u8 data_write_count = 0;
-static  u8 data_read_count = 0;
+
 
 
 u8 sys_mode = USUAL_MODE;
@@ -250,9 +257,28 @@ void key_event_hadler()
 			}
 			if(sys_mode == ADJUST_TEMP_MODE)
 			{
-				sensor.upper_temp_limit++;
+				five_second_count = 0;
+				if(sensor.adjust_temp_limit == UP_LIMIT)
+				{
+					sensor.upper_temp_limit++;
+				}
+				if(sensor.adjust_temp_limit == LOW_LIMIT)
+				{
+					sensor.lower_temp_limit++;
+				}
 			}
-			
+			if(sys_mode == ADJUST_HUMI_MODE)
+			{
+				five_second_count = 0;
+				if(sensor.adjust_humi_limit == UP_LIMIT)
+				{
+					sensor.upper_humi_limit++;
+				}
+				if(sensor.adjust_humi_limit == LOW_LIMIT)
+				{
+					sensor.lower_humi_limit++;
+				}
+			}
 			break;
 		}
 		case KEY3: //读取
@@ -278,8 +304,21 @@ void key_event_hadler()
 		}
 		case KEY4: //湿度
 		{
-			
+			if(sys_mode != ADJUST_HUMI_MODE)
+			{
+				sys_mode = ADJUST_HUMI_MODE;
+				sensor.adjust_humi_limit = UP_LIMIT;
+				
+				
+			}else
+			{
+				sensor.adjust_humi_limit = !sensor.adjust_humi_limit;
+			}
+			five_second_begin = 1;
+			five_second_count = 0;
+			callback_event = KEY4;
 			break;
+			
 		}
 		case KEY5: // -
 		{
@@ -292,6 +331,30 @@ void key_event_hadler()
 				STMFLASH_Read(FLASH_SAVE_ADDR + SIZE*data_read_count,save_data,SIZE);
 				//清屏幕，数据显示在屏幕
 				show_savedata();
+			}
+			if(sys_mode == ADJUST_TEMP_MODE)
+			{
+				five_second_count = 0;
+				if(sensor.adjust_temp_limit == UP_LIMIT)
+				{
+					sensor.upper_temp_limit--;
+				}
+				if(sensor.adjust_temp_limit == LOW_LIMIT)
+				{
+					sensor.lower_temp_limit--;
+				}
+			}
+			if(sys_mode == ADJUST_HUMI_MODE)
+			{
+				five_second_count = 0;
+				if(sensor.adjust_humi_limit == UP_LIMIT)
+				{
+					sensor.upper_humi_limit--;
+				}
+				if(sensor.adjust_humi_limit == LOW_LIMIT)
+				{
+					sensor.lower_humi_limit--;
+				}
 			}
 			break;
 		}

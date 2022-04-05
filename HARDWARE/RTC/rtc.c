@@ -29,7 +29,7 @@ u8 RTC_Init(void)
 	u8 temp=0;
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);	//使能PWR和BKP外设时钟   
 	PWR_BackupAccessCmd(ENABLE);	//使能后备寄存器访问  
-	if (BKP_ReadBackupRegister(BKP_DR1) != 0x6060)		//从指定的后备寄存器中读出数据:读出了与写入的指定数据不相乎
+//	if (BKP_ReadBackupRegister(BKP_DR1) != 0x6060)		//从指定的后备寄存器中读出数据:读出了与写入的指定数据不相乎
 		{	 			 
 		BKP_DeInit();	//复位备份区域 	
 		RCC_LSEConfig(RCC_LSE_ON);	//设置外部低速晶振(LSE),使用外设低速晶振
@@ -48,17 +48,17 @@ u8 RTC_Init(void)
 		RTC_EnterConfigMode();/// 允许配置	
 		RTC_SetPrescaler(32767); //设置RTC预分频的值
 		RTC_WaitForLastTask();	//等待最近一次对RTC寄存器的写操作完成
-		RTC_Set(2022,4,5,12,40,55);  //设置时间	
+		RTC_Set(2022,4,5,20,51,55);  //设置时间	
 		RTC_ExitConfigMode(); //退出配置模式  
 		BKP_WriteBackupRegister(BKP_DR1, 0X6060);	//向指定的后备寄存器中写入用户程序数据
 		}
-	else//系统继续计时
-		{
-
-		RTC_WaitForSynchro();	//等待最近一次对RTC寄存器的写操作完成
-		RTC_ITConfig(RTC_IT_SEC, ENABLE);	//使能RTC秒中断
-		RTC_WaitForLastTask();	//等待最近一次对RTC寄存器的写操作完成
-		}
+//	else//系统继续计时
+//		{
+//
+//		RTC_WaitForSynchro();	//等待最近一次对RTC寄存器的写操作完成
+//		RTC_ITConfig(RTC_IT_SEC, ENABLE);	//使能RTC秒中断
+//		RTC_WaitForLastTask();	//等待最近一次对RTC寄存器的写操作完成
+//		}
 	RTC_NVIC_Config();//RCT中断分组设置		    				     
 	RTC_Get();//更新时间	
 	return 0; //ok
@@ -74,6 +74,7 @@ void RTC_IRQHandler(void)
 		RTC_Get();//更新时间
 		if(sys_mode == USUAL_MODE)
 		{ 
+//			formatScreenTwo(0,0x00);
 			showString(16,0,":",FONT_16_EN);
 			showString(40,0,":",FONT_16_EN);
 			showString(92,0,"-",FONT_16_EN);			

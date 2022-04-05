@@ -3,6 +3,8 @@
 #include "sys.h"
 
 //////////////////////////////////////////////////////////////////////////////////   	 
+#define SIZE sizeof(save_data)		//数组长度
+#define FLASH_SAVE_ADDR  0X08007000		//设置FLASH 保存地址(必须为偶数，且其值要大于本代码所占用FLASH的大小+0X08000000)
 
 #define KEY0_PORT GPIOB
 #define KEY1_PORT GPIOB
@@ -36,8 +38,8 @@ enum
 
 enum
 {
-    UP_LIMIT,
-    LOW_LIMIT,
+    UP_LIMIT = 0,
+    LOW_LIMIT = 1,
 };
 
 extern volatile u8  KeyCurrent,KeyOld,KeyNoChangedTime;
@@ -49,7 +51,8 @@ extern volatile u8 KeyCanChange;
 
 extern u16 save_data[8];
 extern u8 sys_mode;
-
+extern u8 data_write_count;
+extern u8 data_read_count;
 
 void KEY_Init(void);//IO初始化	
 void Timer3_Init(u16 arr,u16 psc);
