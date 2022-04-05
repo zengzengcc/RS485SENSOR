@@ -15,7 +15,7 @@ u8 tempbuf[] = {0x01,0x04,0x00,0x01,0x00,0x01,0x60,0x0a}; // 读取温度
 u8 humibuf[] = {0x01,0x04,0x00,0x02,0x00,0x01,0x90,0x0A}; //读取湿度
 
 u16 save_data[8] = {0};				// year、month、day、hour、min，sec，temp、humi
-
+u8 last_mode;
 
 int main(void)
  {	 
@@ -23,7 +23,7 @@ int main(void)
 	char temp_data[5];
 	char humi_data[5];
 	u8 *len;
-
+	
 	delay_init();	    	 //延时函数初始化	  
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);//设置中断优先级分组为组2：2位抢占优先级，2位响应优先级
 	uart_init(115200);	 	//串口初始化为115200
@@ -36,19 +36,21 @@ int main(void)
 	Timer3_Init(99,7199); //10ms
 	formatScreen(0x00);
  	
-
 	while(1)
 	{
 		if(sys_mode == USUAL_MODE)
 		{
-			
+			if(last_mode != USUAL_MODE)
+			{
+				formatScreen(0X00);
+			}
 			showCNString(0,3,"温度",FONT_16_CN);
 			showString(33,3,":",FONT_16_EN);
 			showCNString(0,6,"湿度",FONT_16_EN);
 			showString(33,6,":",FONT_16_EN);
 			
 			RS485_Send_Data(tempbuf,8);// 获取温度
-			delay_ms(200);		
+			delay_ms(300);		
 			RS485_Receive_Data(rs485_rxbuf,len);
 			sprintf(temp_data,"%d",rs485_rxbuf[3]<<8|rs485_rxbuf[4]);
 			save_data[6] = atoi(temp_data);
@@ -57,11 +59,11 @@ int main(void)
 			showString(56,3,".",FONT_16_EN);
 			showNumber(60,3,atoi(temp_data)%10,DEC,2,FONT_16_EN);
 			showCNString(68,3,"镀",FONT_16_EN);		//°
-			showString(76,3,"C",FONT_16_EN);
+
 
 
 			RS485_Send_Data(humibuf,8);// 获取湿度
-			delay_ms(200);		
+			delay_ms(300);		
 			RS485_Receive_Data(rs485_rxbuf,len);
 			sprintf(humi_data,"%d",rs485_rxbuf[3]<<8|rs485_rxbuf[4]);
 			save_data[7] = atoi(humi_data);
@@ -79,6 +81,29 @@ int main(void)
 			save_data[5] = calendar.sec;
 			save_data[6] = atoi(temp_data);
 			save_data[7] = atoi(humi_data);		
+			last_mode = USUAL_MODE;
+	  }
+	  
+	  else if(sys_mode == ADJUST_TEMP_MODE)
+	  {		
+		  if(last_mode == USUAL_MODE)
+	  	 {			
+			formatScreen(0X00);
+		 }
+			
+		  if(sensor.adjust_temp_limit == UP_LIMIT)
+		  {
+		  	
+		  	showCNString(0,3,"温度上限",FONT_16_CN);
+		 	showNumber(72,3,sensor.upper_temp_limit,DEC,2,FONT_16_EN);
+		  }
+		  else if(sensor.adjust_temp_limit == LOW_LIMIT)
+		  {
+			
+		  	showCNString(0,3,"温度下限",FONT_16_CN);
+		 	showNumber(72,3,sensor.lower_temp_limit,DEC,2,FONT_16_EN);
+		  }
+		 last_mode = ADJUST_TEMP_MODE;
 	  }
 
 	} 

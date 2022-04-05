@@ -18,6 +18,8 @@ struct sensor_t
 	u8 lower_temp_limit;	//温度下限
 	u8 upper_humi_limit;	//湿度上限
 	u8 lower_humi_limit;	//湿度下限
+	u8 adjust_temp_limit;	//调整温度上下限
+	u8 adjust_humi_limit;	//调整湿度上下限
 };
 extern struct sensor_t sensor;
 

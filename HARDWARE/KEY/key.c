@@ -57,6 +57,10 @@ void KEY_Init(void) //IO初始化
 
 static u8 two_second_begin = 0;
 static u8 two_second_count = 0;
+
+static u16 five_second_begin = 0;
+static u16 five_second_count = 0;
+
 u8 callback_event = 0;
 
 void key_event_callback(u8 key)
@@ -69,6 +73,14 @@ void key_event_callback(u8 key)
 			showCNString(84,6,"空空",FONT_16_EN);
 			break;
 		}
+		case KEY1:
+		{
+			sys_mode = USUAL_MODE;
+			showCNString(0,3,"空空空空空空空空空空空",FONT_16_EN);
+			break;
+		}
+		default:
+			break;
 	}
 }
 
@@ -90,7 +102,6 @@ u8 GetKeyValue()
 	}
 	return inputdata;
 }
-
 
 
 void TIM3_IRQHandler(void)   //TIM3中断
@@ -135,6 +146,19 @@ void TIM3_IRQHandler(void)   //TIM3中断
 			key_event_callback(callback_event);
 		}
 	}
+
+	if(five_second_begin == 1)
+	{
+		five_second_count++;
+		if(five_second_count > 500)
+		{
+			five_second_begin = 0;
+			five_second_count = 0;
+			key_event_callback(callback_event);
+		}
+	}
+
+	
 }
 void show_savedata(void)
 {
@@ -168,11 +192,11 @@ void show_savedata(void)
 static  u8 data_write_count = 0;
 static  u8 data_read_count = 0;
 
+
 u8 sys_mode = USUAL_MODE;
 
 void key_event_hadler()
 {
-
 	switch(KeyUp)
 	{
 		case KEY0:	// 保存 
@@ -196,8 +220,19 @@ void key_event_hadler()
 		}
 		case KEY1: //温度
 		{
-			
-			
+			if(sys_mode != ADJUST_TEMP_MODE)
+			{
+				sys_mode = ADJUST_TEMP_MODE;
+				sensor.adjust_temp_limit = UP_LIMIT;
+				
+				
+			}else
+			{
+				sensor.adjust_temp_limit = !sensor.adjust_temp_limit;
+			}
+			five_second_begin = 1;
+			five_second_count = 0;
+			callback_event = KEY1;
 			break;
 		}
 		case KEY2: //+
@@ -211,11 +246,13 @@ void key_event_hadler()
 			
 				STMFLASH_Read(FLASH_SAVE_ADDR + SIZE*data_read_count,save_data,SIZE);
 				//清屏幕，数据显示在屏幕
-				formatScreen(0X00);
-				showNumber(0,0,save_data[3],DEC,2,FONT_16_EN);		//显示时间 
-				showNumber(24,0,save_data[4],DEC,2,FONT_16_EN);
-				showNumber(48,0,save_data[5],DEC,2,FONT_16_EN);
+				show_savedata();
 			}
+			if(sys_mode == ADJUST_TEMP_MODE)
+			{
+				sensor.upper_temp_limit++;
+			}
+			
 			break;
 		}
 		case KEY3: //读取
@@ -254,11 +291,8 @@ void key_event_hadler()
 				}
 				STMFLASH_Read(FLASH_SAVE_ADDR + SIZE*data_read_count,save_data,SIZE);
 				//清屏幕，数据显示在屏幕
-				formatScreen(0X00);
-				showNumber(0,0,save_data[3],DEC,2,FONT_16_EN);		//显示时间 
-				showNumber(24,0,save_data[4],DEC,2,FONT_16_EN);
-				showNumber(48,0,save_data[5],DEC,2,FONT_16_EN);
-			}else
+				show_savedata();
+			}
 			break;
 		}
 	}

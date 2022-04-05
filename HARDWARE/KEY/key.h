@@ -30,7 +30,8 @@ enum
 {
     USUAL_MODE,
     READ_MODE,
-    ADJUST_MODE,
+    ADJUST_TEMP_MODE,
+    ADJUST_HUMI_MODE,
 };
 
 enum
@@ -48,6 +49,7 @@ extern volatile u8 KeyCanChange;
 
 extern u16 save_data[8];
 extern u8 sys_mode;
+
 
 void KEY_Init(void);//IO初始化	
 void Timer3_Init(u16 arr,u16 psc);
